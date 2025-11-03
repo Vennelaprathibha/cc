@@ -1,0 +1,1597 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Blood Banking System</title>
+  <style>
+    body { 
+      font-family: Arial, sans-serif; 
+      background: #f8f8f8; 
+      margin: 0; 
+      padding: 0;
+      font-size: 16px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    header { 
+      background: #cc0000; 
+      color: white; 
+      padding: 20px; 
+      text-align: center; 
+      font-size: 26px;
+      font-weight: bold;
+    }
+    .box {
+      background: white; 
+      padding: 30px; 
+      border-radius: 8px; 
+      width: 450px; 
+      margin: 20px auto;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    }
+    h2 { 
+      text-align: center; 
+      color: #cc0000;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+    label { 
+      font-weight: bold; 
+      margin-top: 12px; 
+      display: block;
+      font-size: 16px;
+    }
+    input, select, textarea {
+      width: 100%; 
+      padding: 12px; 
+      margin-top: 8px; 
+      border: 1px solid #ccc; 
+      border-radius: 4px;
+      box-sizing: border-box;
+      font-size: 15px;
+    }
+    button {
+      padding: 12px 20px; 
+      margin-top: 12px; 
+      border: none; 
+      border-radius: 4px; 
+      font-size: 16px;
+      cursor: pointer; 
+      width: 100%; 
+      box-sizing: border-box;
+      font-weight: bold;
+    }
+    .login-btn { background: #cc0000; color: white; }
+    .register-btn { background: #cc0000; color: white; margin-top: 8px; }
+    .logout-btn { 
+      background: #990000; 
+      color: white;
+      width: 150px;
+      height: 50px;
+      display: block;
+      margin: 20px auto;
+      border-radius: 8px;
+    }
+    .dashboard { 
+      padding: 20px; 
+      display: flex; 
+      flex-wrap: wrap; 
+      justify-content: center;
+    }
+    .card {
+      background: white; 
+      padding: 20px; 
+      margin: 12px; 
+      border-radius: 8px; 
+      width: 220px;
+      text-align: center; 
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1); 
+      cursor: pointer; 
+      transition: transform 0.2s;
+      font-size: 17px;
+      font-weight: bold;
+    }
+    .card:hover { transform: scale(1.05); }
+    .hidden { display: none; }
+    table { 
+      width: 100%; 
+      border-collapse: collapse; 
+      margin-top: 15px;
+      font-size: 15px;
+    }
+    th, td { 
+      border: 1px solid #ccc; 
+      padding: 12px; 
+      text-align: center;
+    }
+    th { 
+      background: #eee;
+      font-weight: bold;
+    }
+    .popup {
+      display: none; 
+      background: #d4edda; 
+      color: #155724; 
+      border: 1px solid #c3e6cb;
+      border-radius: 4px; 
+      padding: 15px; 
+      margin: 15px auto; 
+      width: 450px; 
+      text-align: center;
+      font-size: 16px;
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      z-index: 1000;
+    }
+    .positive { color: green; font-weight: bold; }
+    .negative { color: red; font-weight: bold; }
+    .emergency { color: red; font-weight: bold; }
+    .main-container {
+      width: 100%;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+    .main-container.centered {
+      justify-content: center;
+      align-items: center;
+    }
+    .action-btn {
+      padding: 8px 16px;
+      margin: 5px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: bold;
+    }
+    .accept-btn {
+      background: #28a745;
+      color: white;
+    }
+    .reject-btn {
+      background: #dc3545;
+      color: white;
+    }
+    p {
+      font-size: 16px;
+      line-height: 1.6;
+    }
+    ul {
+      font-size: 16px;
+    }
+    .donor-info {
+      text-align: left;
+      padding: 10px;
+    }
+    .donor-info strong {
+      display: block;
+      margin-top: 5px;
+    }
+    .button-row {
+      display: flex;
+      gap: 10px;
+      margin-top: 12px;
+    }
+    .button-row button {
+      flex: 1;
+      margin-top: 0;
+    }
+    h3 {
+      color: #cc0000;
+      font-size: 20px;
+      margin-top: 20px;
+    }
+    .title-header {
+      background: #cc0000;
+      color: white;
+      padding: 10px 20px;
+      text-align: center;
+      font-size: 24px;
+      font-weight: bold;
+      width: 100%;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+  </style>
+  <script src="https://sites.super.myninja.ai/_assets/ninja-daytona-script.js"></script>
+</head>
+<body>
+  <div class="main-container centered" id="mainContainer">
+    <div class="title-header">Blood Banking System</div>
+    <div class="popup" id="popupMsg"></div>
+
+    <!-- Login/Register Page -->
+    <div class="box" id="mainBox">
+      <h2>Login / Register</h2>
+      <label>Select Role:</label>
+      <select id="role">
+        <option value="donor">Donor</option>
+        <option value="hospital">Hospital</option>
+        <option value="doctor">Doctor</option>
+        <option value="lab">Lab Technician</option>
+        <option value="admin">Admin</option>
+        <option value="bloodbank">Blood Bank</option>
+      </select>
+      <label>Username:</label><input type="text" id="username" placeholder="Enter Username">
+      <label>Password:</label><input type="password" id="password" placeholder="Enter Password">
+      <div class="button-row">
+        <button class="login-btn" onclick="login()">Login</button>
+        <button class="register-btn" onclick="showRegistration()">New Registration</button>
+      </div>
+      <button class="register-btn" style="background:#006699;" onclick="showChangePassword()">Change Password</button>
+    </div>
+
+    <!-- Registration Form -->
+    <div class="box hidden" id="registrationBox">
+      <h2>Registration</h2>
+      <form id="registrationForm"></form>
+      <button class="login-btn" onclick="submitRegistration()">Submit</button>
+      <button class="register-btn" onclick="backToLogin()">Back</button>
+    </div>
+
+    <!-- Change Password -->
+    <div class="box hidden" id="changePasswordBox">
+      <h2>Change Password</h2>
+      <label>Username:</label><input type="text" id="cpUsername" placeholder="Enter Username">
+      <label>Old Password:</label><input type="password" id="oldPass" placeholder="Enter Old Password">
+      <label>New Password:</label><input type="password" id="newPass" placeholder="Enter New Password">
+      <label>Confirm Password:</label><input type="password" id="confirmPass" placeholder="Confirm New Password">
+      <button class="login-btn" onclick="changePassword()">Update Password</button>
+      <button class="register-btn" onclick="backToLogin()">Back</button>
+    </div>
+
+    <!-- Dashboard -->
+    <div id="dashboardBox" class="hidden" style="width: 100%;">
+      <header id="roleHeader">Dashboard</header>
+      <div class="dashboard" id="dashboard"></div>
+      <button class="logout-btn" onclick="logout()">Logout</button>
+    </div>
+
+    <!-- Dynamic Content -->
+    <div class="box hidden" id="contentBox" style="max-width: 900px; width: 90%;">
+      <h2 id="contentTitle"></h2>
+      <div id="contentBody"></div>
+      <button class="register-btn" onclick="backToDashboard()">Back</button>
+    </div>
+  </div>
+
+  <script>
+    // Data
+    let currentRole = "";
+    let currentUser = null;
+    let registeredUsers = [
+      { role: "donor", username: "username", password: "password", name: "Ravi", age: "27", gender: "Male", bloodGroup: "O+", contact: "9876543210", address: "123 Street, City" },
+      { role: "hospital", username: "username", password: "password", name: "City Hospital", address: "Hyderabad", contact: "040-12341234", state: "Telangana", district: "Hyderabad" },
+      { role: "doctor", username: "username", password: "password", name: "Dr. Meena", specialization: "Cardiologist", workplace: "City Hospital", gender: "Female", contact: "9876543211", address: "456 Avenue, Town" },
+      { role: "lab", username: "username", password: "password", name: "Arun", gender: "Male", contact: "8888554422", address: "789 Road, Village" },
+      { role: "admin", username: "username", password: "password", name: "Admin", email: "admin@example.com", gender: "Male", contact: "1234567890", address: "Admin Address" },
+      { role: "bloodbank", username: "username", password: "password", name: "Central Blood Bank", state: "Telangana", district: "Hyderabad", location: "Downtown", address: "Main Road, Hyderabad", contact: "040-56785678" }
+    ];
+    let donors = [{
+      username: "username", name: "Ravi", age: "27", gender: "Male", bloodGroup: "O+",
+      contact: "9876543210", address: "123 Street, City", donations: ["2022-10-01: 1 unit"], healthIssues: []
+    }];
+    let hospital = { 
+      name: "City Hospital", address: "Hyderabad", contact: "040-12341234", state: "Telangana", district: "Hyderabad", 
+      stock: { "A+": 10, "A-": 5, "B+": 2, "B-": 3, "AB+": 4, "AB-": 1, "O+": 8, "O-": 6 }, 
+      requests: [], 
+      username: "username"
+    };
+    let doctor = { name: "Dr. Meena", specialization: "Cardiologist", workplace: "City Hospital", gender: "Female", contact: "9876543211", address: "456 Avenue, Town", requests: [], alerts: [], username: "username" };
+    let lab = {
+      name: "Arun", gender: "Male", contact: "8888554422", address: "789 Road, Village", username: "username",
+      tests: [
+        { id: 1, group: "O+", hiv: "Negative (-)", hepatitis: "Negative (-)", malaria: "Negative (-)", syphilis: "Negative (-)", status: "Completed", result: "Accepted", donor: { name: "Ravi", bloodGroup: "O+", contact: "9876543210", address: "123 Street, City", age: "27", gender: "Male" } },
+        { id: 2, group: "B-", hiv: "Pending", hepatitis: "Pending", malaria: "Pending", syphilis: "Pending", status: "In Progress", result: "Pending", donor: { name: "Unknown", bloodGroup: "B-", contact: "N/A", address: "N/A", age: "N/A", gender: "N/A" } }
+      ]
+    };
+    let admin = { name: "Admin", email: "admin@example.com", gender: "Male", contact: "1234567890", address: "Admin Address", username: "username" };
+    let bloodbank = { 
+      name: "Central Blood Bank", state: "Telangana", district: "Hyderabad", location: "Downtown", 
+      address: "Main Road, Hyderabad", contact: "040-56785678", 
+      stock: { "A+": 15, "A-": 7, "B+": 10, "B-": 4, "AB+": 5, "AB-": 2, "O+": 12, "O-": 8 }, 
+      requests: [], alerts: [], username: "username" 
+    };
+    let users = [
+      { role: "donor", name: "Ravi", detail: "O+ Blood Donor", username: "username" },
+      { role: "hospital", name: "City Hospital", detail: "Hyderabad", username: "username" },
+      { role: "doctor", name: "Dr. Meena", detail: "Cardiologist", username: "username" },
+      { role: "lab", name: "Arun", detail: "Lab Technician", username: "username" },
+      { role: "admin", name: "Admin", detail: "Administrator", username: "username" },
+      { role: "bloodbank", name: "Central Blood Bank", detail: "Downtown", username: "username" }
+    ];
+    let bloodbanks = [
+      { name: "Central Blood Bank", state: "Telangana", district: "Hyderabad", location: "Downtown", contact: "040-56785678", stock: { "A+": 15, "A-": 7, "B+": 10, "B-": 4, "AB+": 5, "AB-": 2, "O+": 12, "O-": 8 } },
+      { name: "North Blood Bank", state: "Telangana", district: "Hyderabad", location: "North", contact: "040-99999999", stock: { "A+": 8, "A-": 3, "B+": 6, "B-": 2, "AB+": 4, "AB-": 1, "O+": 10, "O-": 5 } },
+      { name: "South Blood Bank", state: "Telangana", district: "Hyderabad", location: "South", contact: "040-88888888", stock: { "A+": 12, "A-": 5, "B+": 8, "B-": 3, "AB+": 3, "AB-": 1, "O+": 15, "O-": 7 } },
+      { name: "Warangal Central BB", state: "Telangana", district: "Warangal", location: "Central", contact: "0870-1234567", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 2, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Karimnagar BB", state: "Telangana", district: "Karimnagar", location: "Main", contact: "0878-7654321", stock: { "A+": 6, "A-": 2, "B+": 5, "B-": 1, "AB+": 3, "AB-": 0, "O+": 8, "O-": 3 } },
+      { name: "Vijayawada BB", state: "Andhra Pradesh", district: "Krishna", location: "Main", contact: "0866-7654321", stock: { "A+": 14, "A-": 6, "B+": 9, "B-": 3, "AB+": 4, "AB-": 2, "O+": 11, "O-": 6 } },
+      { name: "Visakhapatnam BB", state: "Andhra Pradesh", district: "Visakhapatnam", location: "Beach Road", contact: "0891-1122334", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 3, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Guntur BB", state: "Andhra Pradesh", district: "Guntur", location: "Central", contact: "0863-4455667", stock: { "A+": 12, "A-": 5, "B+": 8, "B-": 3, "AB+": 3, "AB-": 1, "O+": 10, "O-": 5 } },
+      { name: "Mumbai Central BB", state: "Maharashtra", district: "Mumbai", location: "Central", contact: "022-4455667", stock: { "A+": 15, "A-": 7, "B+": 10, "B-": 4, "AB+": 5, "AB-": 2, "O+": 12, "O-": 8 } },
+      { name: "Pune BB", state: "Maharashtra", district: "Pune", location: "Downtown", contact: "020-9988776", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 3, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Nagpur BB", state: "Maharashtra", district: "Nagpur", location: "Main", contact: "0712-3344556", stock: { "A+": 8, "A-": 3, "B+": 6, "B-": 2, "AB+": 2, "AB-": 1, "O+": 7, "O-": 3 } },
+      { name: "Bangalore BB", state: "Karnataka", district: "Bangalore", location: "MG Road", contact: "080-5544332", stock: { "A+": 12, "A-": 5, "B+": 8, "B-": 3, "AB+": 3, "AB-": 1, "O+": 10, "O-": 5 } },
+      { name: "Mysore BB", state: "Karnataka", district: "Mysore", location: "Palace", contact: "0821-6677889", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 2, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Hubli BB", state: "Karnataka", district: "Dharwad", location: "Central", contact: "0836-2233445", stock: { "A+": 8, "A-": 3, "B+": 6, "B-": 2, "AB+": 2, "AB-": 1, "O+": 7, "O-": 3 } },
+      { name: "Chennai BB", state: "Tamil Nadu", district: "Chennai", location: "Marina", contact: "044-2233445", stock: { "A+": 12, "A-": 5, "B+": 8, "B-": 3, "AB+": 3, "AB-": 1, "O+": 10, "O-": 5 } },
+      { name: "Coimbatore BB", state: "Tamil Nadu", district: "Coimbatore", location: "RS Puram", contact: "0422-5566778", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 2, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Madurai BB", state: "Tamil Nadu", district: "Madurai", location: "Temple Area", contact: "0452-8899001", stock: { "A+": 8, "A-": 3, "B+": 6, "B-": 2, "AB+": 2, "AB-": 1, "O+": 7, "O-": 3 } },
+      { name: "Delhi Central BB", state: "Delhi", district: "Central Delhi", location: "Connaught Place", contact: "011-1234567", stock: { "A+": 15, "A-": 7, "B+": 10, "B-": 4, "AB+": 5, "AB-": 2, "O+": 12, "O-": 8 } },
+      { name: "Kolkata BB", state: "West Bengal", district: "Kolkata", location: "Esplanade", contact: "033-7654321", stock: { "A+": 12, "A-": 5, "B+": 8, "B-": 3, "AB+": 3, "AB-": 1, "O+": 10, "O-": 5 } },
+      { name: "Ahmedabad BB", state: "Gujarat", district: "Ahmedabad", location: "Main", contact: "079-1122334", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 3, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Jaipur BB", state: "Rajasthan", district: "Jaipur", location: "Pink City", contact: "0141-4455667", stock: { "A+": 8, "A-": 3, "B+": 6, "B-": 2, "AB+": 2, "AB-": 1, "O+": 7, "O-": 3 } },
+      { name: "Lucknow BB", state: "Uttar Pradesh", district: "Lucknow", location: "Hazratganj", contact: "0522-9988776", stock: { "A+": 12, "A-": 5, "B+": 8, "B-": 3, "AB+": 3, "AB-": 1, "O+": 10, "O-": 5 } },
+      { name: "Patna BB", state: "Bihar", district: "Patna", location: "Central", contact: "0612-3344556", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 2, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Bhopal BB", state: "Madhya Pradesh", district: "Bhopal", location: "Main", contact: "0755-2233445", stock: { "A+": 8, "A-": 3, "B+": 6, "B-": 2, "AB+": 2, "AB-": 1, "O+": 7, "O-": 3 } },
+      { name: "Chandigarh BB", state: "Chandigarh", district: "Chandigarh", location: "Sector 17", contact: "0172-5566778", stock: { "A+": 12, "A-": 5, "B+": 8, "B-": 3, "AB+": 3, "AB-": 1, "O+": 10, "O-": 5 } },
+      { name: "Guwahati BB", state: "Assam", district: "Kamrup", location: "Central", contact: "0361-8899001", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 2, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Thiruvananthapuram BB", state: "Kerala", district: "Thiruvananthapuram", location: "Main", contact: "0471-1234567", stock: { "A+": 8, "A-": 3, "B+": 6, "B-": 2, "AB+": 2, "AB-": 1, "O+": 7, "O-": 3 } },
+      { name: "Bhubaneswar BB", state: "Odisha", district: "Khordha", location: "Central", contact: "0674-7654321", stock: { "A+": 12, "A-": 5, "B+": 8, "B-": 3, "AB+": 3, "AB-": 1, "O+": 10, "O-": 5 } },
+      { name: "Ranchi BB", state: "Jharkhand", district: "Ranchi", location: "Main", contact: "0651-1122334", stock: { "A+": 10, "A-": 4, "B+": 7, "B-": 2, "AB+": 2, "AB-": 1, "O+": 9, "O-": 4 } },
+      { name: "Shimla BB", state: "Himachal Pradesh", district: "Shimla", location: "Mall Road", contact: "0177-4455667", stock: { "A+": 8, "A-": 3, "B+": 6, "B-": 2, "AB+": 2, "AB-": 1, "O+": 7, "O-": 3 } }
+    ];
+    let donationRequests = [];
+    let allRequests = [];
+    let addPopupTimeout = null;
+
+    // Indian states and districts for dropdowns
+    const states = [
+      "Andhra Pradesh", "Assam", "Bihar", "Delhi", "Gujarat",
+      "Himachal Pradesh", "Jharkhand", "Karnataka", "Kerala", "Madhya Pradesh",
+      "Maharashtra", "Odisha", "Rajasthan", "Tamil Nadu", "Telangana",
+      "Uttar Pradesh", "West Bengal"
+    ];
+    const districtsByState = {
+      "Telangana": ["Hyderabad", "Warangal", "Karimnagar"],
+      "Andhra Pradesh": ["Krishna", "Visakhapatnam", "Guntur"],
+      "Maharashtra": ["Mumbai", "Pune", "Nagpur"],
+      "Karnataka": ["Bangalore", "Mysore", "Dharwad"],
+      "Tamil Nadu": ["Chennai", "Coimbatore", "Madurai"],
+      "Delhi": ["Central Delhi"],
+      "West Bengal": ["Kolkata"],
+      "Gujarat": ["Ahmedabad"],
+      "Rajasthan": ["Jaipur"],
+      "Uttar Pradesh": ["Lucknow"],
+      "Bihar": ["Patna"],
+      "Madhya Pradesh": ["Bhopal"],
+      "Assam": ["Kamrup"],
+      "Kerala": ["Thiruvananthapuram"],
+      "Odisha": ["Khordha"],
+      "Jharkhand": ["Ranchi"],
+      "Himachal Pradesh": ["Shimla"]
+    };
+    const hospitalsByDistrict = {
+      "Hyderabad": ["City Hospital", "Sunshine Hospital", "Apollo Hospital"],
+      "Warangal": ["Warangal General", "LifeCare Hospital"],
+      "Karimnagar": ["Karimnagar Medical", "Star Hospital"],
+      "Krishna": ["Vijayawada General", "Andhra Hospital"],
+      "Visakhapatnam": ["King George Hospital", "Seven Hills"],
+      "Guntur": ["Guntur Medical", "NRI Hospital"],
+      "Mumbai": ["JJ Hospital", "Fortis Hospital"],
+      "Pune": ["Ruby Hall", "Jehangir Hospital"],
+      "Nagpur": ["Orange City Hospital", "Care Hospital"],
+      "Bangalore": ["Manipal Hospital", "Fortis Bangalore"],
+      "Mysore": ["Mysore Medical", "Apollo BGS"],
+      "Dharwad": ["Hubli Hospital", "SDM Hospital"],
+      "Chennai": ["Apollo Chennai", "Fortis Malar"],
+      "Coimbatore": ["KG Hospital", "GKNM Hospital"],
+      "Madurai": ["Meenakshi Mission", "Vadamalayan Hospital"],
+      "Central Delhi": ["AIIMS Delhi", "Safdarjung Hospital"],
+      "Kolkata": ["Apollo Kolkata", "AMRI Hospital"],
+      "Ahmedabad": ["Civil Hospital", "Sterling Hospital"],
+      "Jaipur": ["Sawai Man Singh", "Fortis Jaipur"],
+      "Lucknow": ["KGMU Hospital", "Sahara Hospital"],
+      "Patna": ["PMCH Patna", "Paras Hospital"],
+      "Bhopal": ["AIIMS Bhopal", "Bansal Hospital"],
+      "Kamrup": ["GMCH Guwahati", "Apollo Guwahati"],
+      "Thiruvananthapuram": ["Medical College Trivandrum", "Sree Chitra"],
+      "Khordha": ["AIIMS Bhubaneswar", "Apollo Bhubaneswar"],
+      "Ranchi": ["RIMS Ranchi", "Orchid Hospital"],
+      "Shimla": ["IGMC Shimla", "Deen Dayal Hospital"]
+    };
+
+    function showPopup(msg) {
+      try {
+        clearTimeout(addPopupTimeout);
+        let p = document.getElementById("popupMsg");
+        p.innerText = msg;
+        p.style.display = "block";
+        addPopupTimeout = setTimeout(() => p.style.display = "none", 3000);
+      } catch (e) {
+        console.error("Popup error:", e);
+      }
+    }
+
+    function login() {
+      try {
+        currentRole = document.getElementById("role").value;
+        let username = document.getElementById("username").value.trim();
+        let password = document.getElementById("password").value.trim();
+        if (!username || !password) {
+          showPopup("Enter username and password!");
+          return;
+        }
+        let user = registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase() && u.password === password && u.role === currentRole);
+        if (!user) {
+          showPopup("Invalid credentials!");
+          return;
+        }
+        currentUser = user;
+        document.getElementById("mainBox").classList.add("hidden");
+        document.getElementById("mainContainer").classList.remove("centered");
+        document.getElementById("dashboardBox").classList.remove("hidden");
+        loadDashboard();
+        showPopup("Login successful!");
+      } catch (e) {
+        console.error("Login error:", e);
+        showPopup("Login failed!");
+      }
+    }
+
+    function showRegistration() {
+      try {
+        currentRole = document.getElementById("role").value;
+        document.getElementById("mainBox").classList.add("hidden");
+        document.getElementById("registrationBox").classList.remove("hidden");
+        let form = document.getElementById("registrationForm");
+        form.innerHTML = `
+          <label>Username:</label><input type="text" id="regUsername" placeholder="Enter Username">
+          <label>Password:</label><input type="password" id="regPassword" placeholder="Enter Password">
+          <label>Name:</label><input type="text" id="regName">`;
+        if (currentRole === "donor") {
+          form.innerHTML += `
+            <label>Age:</label><input type="number" id="regAge">
+            <label>Gender:</label><select id="regGender"><option>Male</option><option>Female</option><option>Other</option></select>
+            <label>Blood Group:</label><input type="text" id="regBloodGroup">
+            <label>Contact:</label><input type="text" id="regContact">
+            <label>Address:</label><input type="text" id="regAddress">`;
+        } else if (currentRole === "hospital" || currentRole === "bloodbank") {
+          form.innerHTML += `
+            <label>State:</label><select id="regState" onchange="updateDistrictOptions('regState', 'regDistrict')">${states.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
+            <label>District:</label><select id="regDistrict"></select>
+            <label>Contact:</label><input type="text" id="regContact">
+            <label>Address:</label><input type="text" id="regAddress">`;
+          if (currentRole === "bloodbank") form.innerHTML += `<label>Location:</label><input type="text" id="regLocation">`;
+        } else if (currentRole === "doctor" || currentRole === "lab" || currentRole === "admin") {
+          form.innerHTML += `
+            <label>Gender:</label><select id="regGender"><option>Male</option><option>Female</option><option>Other</option></select>
+            <label>Contact:</label><input type="text" id="regContact">
+            <label>Address:</label><input type="text" id="regAddress">`;
+          if (currentRole === "doctor") form.innerHTML += `<label>Specialization:</label><input type="text" id="regSpecialization"><label>Workplace:</label><input type="text" id="regWorkplace">`;
+          if (currentRole === "admin") form.innerHTML += `<label>Email:</label><input type="text" id="regEmail">`;
+        }
+        updateDistrictOptions('regState', 'regDistrict');
+      } catch (e) {
+        console.error("Show registration error:", e);
+        showPopup("Error loading registration!");
+      }
+    }
+
+    function updateDistrictOptions(stateId, districtId) {
+      try {
+        let state = document.getElementById(stateId)?.value || "";
+        let districtSelect = document.getElementById(districtId);
+        if (districtSelect) {
+          districtSelect.innerHTML = districtsByState[state] ? districtsByState[state].map(d => `<option value="${d}">${d}</option>`).join('') : '<option value="">Select District</option>';
+        }
+      } catch (e) {
+        console.error("Update districts error:", e);
+      }
+    }
+
+    function submitRegistration() {
+      try {
+        let username = document.getElementById("regUsername").value.trim();
+        let password = document.getElementById("regPassword").value.trim();
+        let name = document.getElementById("regName").value.trim();
+        if (!username || !password || !name) {
+          showPopup("Fill required fields!");
+          return;
+        }
+        if (registeredUsers.find(u => u.username.toLowerCase() === username.toLowerCase() && u.role === currentRole)) {
+          showPopup("User already exists!");
+          return;
+        }
+        let userData = { role: currentRole, username, password, name };
+        if (currentRole === "donor") {
+          userData.age = document.getElementById("regAge").value;
+          userData.gender = document.getElementById("regGender").value;
+          userData.bloodGroup = document.getElementById("regBloodGroup").value;
+          userData.contact = document.getElementById("regContact").value;
+          userData.address = document.getElementById("regAddress").value;
+          donors.push({ ...userData, donations: [], healthIssues: [] });
+          users.push({ role: "donor", name, detail: userData.bloodGroup + " Blood Donor", username });
+        } else if (currentRole === "hospital") {
+          userData.address = document.getElementById("regAddress").value;
+          userData.contact = document.getElementById("regContact").value;
+          userData.state = document.getElementById("regState").value;
+          userData.district = document.getElementById("regDistrict").value;
+          hospital = { ...hospital, ...userData, stock: { "A+": 0, "A-": 0, "B+": 0, "B-": 0, "AB+": 0, "AB-": 0, "O+": 0, "O-": 0 }, requests: [] };
+          users.push({ role: "hospital", name, detail: userData.address, username });
+        } else if (currentRole === "doctor") {
+          userData.specialization = document.getElementById("regSpecialization").value;
+          userData.workplace = document.getElementById("regWorkplace").value;
+          userData.gender = document.getElementById("regGender").value;
+          userData.contact = document.getElementById("regContact").value;
+          userData.address = document.getElementById("regAddress").value;
+          doctor = { ...doctor, ...userData, requests: [], alerts: [] };
+          users.push({ role: "doctor", name, detail: userData.specialization, username });
+        } else if (currentRole === "lab") {
+          userData.gender = document.getElementById("regGender").value;
+          userData.contact = document.getElementById("regContact").value;
+          userData.address = document.getElementById("regAddress").value;
+          lab = { ...lab, ...userData, tests: [] };
+          users.push({ role: "lab", name, detail: "Lab Technician", username });
+        } else if (currentRole === "admin") {
+          userData.email = document.getElementById("regEmail").value;
+          userData.gender = document.getElementById("regGender").value;
+          userData.contact = document.getElementById("regContact").value;
+          userData.address = document.getElementById("regAddress").value;
+          admin = { ...admin, ...userData };
+          users.push({ role: "admin", name, detail: "Administrator", username });
+        } else if (currentRole === "bloodbank") {
+          userData.state = document.getElementById("regState").value;
+          userData.district = document.getElementById("regDistrict").value;
+          userData.location = document.getElementById("regLocation").value.trim();
+          userData.address = document.getElementById("regAddress").value;
+          userData.contact = document.getElementById("regContact").value;
+          bloodbank = { ...bloodbank, ...userData, stock: { "A+": 0, "A-": 0, "B+": 0, "B-": 0, "AB+": 0, "AB-": 0, "O+": 0, "O-": 0 }, requests: [], alerts: [] };
+          users.push({ role: "bloodbank", name, detail: userData.location, username });
+          bloodbanks.push({ name, state: userData.state, district: userData.district, location: userData.location, contact: userData.contact });
+        }
+        registeredUsers.push(userData);
+        showPopup("Registration successful!");
+        backToLogin();
+      } catch (e) {
+        console.error("Registration error:", e);
+        showPopup("Registration failed!");
+      }
+    }
+
+    function showChangePassword() {
+      try {
+        document.getElementById("mainBox").classList.add("hidden");
+        document.getElementById("changePasswordBox").classList.remove("hidden");
+      } catch (e) {
+        console.error("Show change password error:", e);
+        showPopup("Error loading password change!");
+      }
+    }
+
+    function changePassword() {
+      try {
+        let u = document.getElementById("cpUsername").value.trim();
+        let o = document.getElementById("oldPass").value.trim();
+        let n = document.getElementById("newPass").value.trim();
+        let c = document.getElementById("confirmPass").value.trim();
+        if (!u || !o || !n || !c) {
+          showPopup("Fill all fields!");
+          return;
+        }
+        let role = document.getElementById("role").value;
+        let user = registeredUsers.find(user => user.username.toLowerCase() === u.toLowerCase() && user.password === o && user.role === role);
+        if (!user) {
+          showPopup("Invalid username or password!");
+          return;
+        }
+        if (n !== c) {
+          showPopup("Passwords do not match!");
+          return;
+        }
+        user.password = n;
+        showPopup("Password updated!");
+        backToLogin();
+      } catch (e) {
+        console.error("Change password error:", e);
+        showPopup("Password change failed!");
+      }
+    }
+
+    function backToLogin() {
+      try {
+        document.getElementById("mainBox").classList.remove("hidden");
+        document.getElementById("registrationBox").classList.add("hidden");
+        document.getElementById("changePasswordBox").classList.add("hidden");
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.add("hidden");
+        document.getElementById("mainContainer").classList.add("centered");
+      } catch (e) {
+        console.error("Back to login error:", e);
+        showPopup("Error returning to login!");
+      }
+    }
+
+    function logout() {
+      try {
+        currentUser = null;
+        currentRole = "";
+        backToLogin();
+        showPopup("Logged out!");
+      } catch (e) {
+        console.error("Logout error:", e);
+        showPopup("Logout failed!");
+      }
+    }
+
+    function loadDashboard() {
+      try {
+        let dash = document.getElementById("dashboard");
+        let head = document.getElementById("roleHeader");
+        dash.innerHTML = "";
+        if (currentRole === "donor") {
+          head.innerText = "Donor Dashboard";
+          dash.innerHTML = `
+            <div class="card" onclick="editDonorProfile()">Edit Profile</div>
+            <div class="card" onclick="showDonations()">View Donations</div>
+            <div class="card" onclick="donateBlood()">Donate Blood</div>`;
+        } else if (currentRole === "hospital") {
+          head.innerText = "Hospital Dashboard";
+          dash.innerHTML = `
+            <div class="card" onclick="manageBlood()">Edit Blood Stock</div>
+            <div class="card" onclick="searchBlood()">Search Blood</div>
+            <div class="card" onclick="requestBlood()">Request Blood</div>
+            <div class="card" onclick="emergencyBloodSearch()">Emergency Blood Search</div>
+            <div class="card" onclick="viewHospitalRequests()">View Requests</div>`;
+        } else if (currentRole === "doctor") {
+          head.innerText = "Doctor Dashboard";
+          dash.innerHTML = `
+            <div class="card" onclick="doctorRequestBlood()">Request Blood</div>
+            <div class="card" onclick="viewDoctorRequests()">View Requests</div>
+            <div class="card" onclick="emergencyAlert()">Emergency Alert</div>`;
+        } else if (currentRole === "lab") {
+          head.innerText = "Lab Technician Dashboard";
+          dash.innerHTML = `
+            <div class="card" onclick="editLabProfile()">Edit Profile</div>
+            <div class="card" onclick="editTests()">Edit Tests</div>`;
+        } else if (currentRole === "admin") {
+          head.innerText = "Admin Dashboard";
+          dash.innerHTML = `
+            <div class="card" onclick="manageUsers()">Manage Users</div>
+            <div class="card" onclick="listBloodBanks()">List Blood Banks</div>
+            <div class="card" onclick="manageBloodBanks()">Manage Blood Banks</div>
+            <div class="card" onclick="viewAllData()">View All Data</div>
+            <div class="card" onclick="manageDonors()">Manage Donors</div>
+            <div class="card" onclick="viewAllRequests()">View All Requests</div>`;
+        } else if (currentRole === "bloodbank") {
+          head.innerText = "Blood Bank Dashboard";
+          dash.innerHTML = `
+            <div class="card" onclick="editBloodBankProfile()">Edit Profile</div>
+            <div class="card" onclick="manageBloodBankStock()">Manage Stock</div>
+            <div class="card" onclick="viewRequestsAndAlerts()">View Requests & Alerts</div>
+            <div class="card" onclick="listBloodBanks()">List Blood Banks</div>
+            <div class="card" onclick="searchBloodBanks()">Search Blood Banks</div>`;
+        }
+      } catch (e) {
+        console.error("Load dashboard error:", e);
+        showPopup("Error loading dashboard!");
+      }
+    }
+
+    // Donor Features
+    function editDonorProfile() {
+      try {
+        let donorData = donors.find(d => d.username === currentUser.username) || {};
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Edit Donor Profile";
+        document.getElementById("contentBody").innerHTML = `
+          <label>Name:</label><input type="text" id="dName" value="${donorData.name || ''}">
+          <label>Age:</label><input type="number" id="dAge" value="${donorData.age || ''}">
+          <label>Gender:</label><select id="dGender"><option value="Male" ${donorData.gender === "Male" ? "selected" : ""}>Male</option><option value="Female" ${donorData.gender === "Female" ? "selected" : ""}>Female</option><option value="Other" ${donorData.gender === "Other" ? "selected" : ""}>Other</option></select>
+          <label>Blood Group:</label><input type="text" id="dBG" value="${donorData.bloodGroup || ''}">
+          <label>Contact:</label><input type="text" id="dContact" value="${donorData.contact || ''}">
+          <label>Address:</label><input type="text" id="dAddress" value="${donorData.address || ''}">
+          <button class="login-btn" onclick="saveDonor()">Save</button>
+        `;
+      } catch (e) {
+        console.error("Edit donor profile error:", e);
+        showPopup("Error loading donor profile!");
+      }
+    }
+
+    function saveDonor() {
+      try {
+        let donorData = donors.find(d => d.username === currentUser.username) || { username: currentUser.username };
+        donorData.name = document.getElementById("dName").value.trim();
+        donorData.age = document.getElementById("dAge").value;
+        donorData.gender = document.getElementById("dGender").value;
+        donorData.bloodGroup = document.getElementById("dBG").value.trim();
+        donorData.contact = document.getElementById("dContact").value.trim();
+        donorData.address = document.getElementById("dAddress").value.trim();
+        if (!donorData.name || !donorData.bloodGroup) {
+          showPopup("Fill required fields!");
+          return;
+        }
+        if (!donors.find(d => d.username === currentUser.username)) donors.push(donorData);
+        let user = users.find(u => u.username === currentUser.username && u.role === "donor");
+        if (user) {
+          user.name = donorData.name;
+          user.detail = donorData.bloodGroup + " Blood Donor";
+        }
+        let regUser = registeredUsers.find(u => u.username === currentUser.username && u.role === "donor");
+        if (regUser) Object.assign(regUser, donorData);
+        showPopup("Profile updated!");
+        backToDashboard();
+      } catch (e) {
+        console.error("Save donor error:", e);
+        showPopup("Error saving profile!");
+      }
+    }
+
+    function showDonations() {
+      try {
+        let donorData = donors.find(d => d.username === currentUser.username) || { donations: [] };
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Donation History";
+        document.getElementById("contentBody").innerHTML = donorData.donations.length ? `<ul>${donorData.donations.map(d => `<li>${d}</li>`).join('')}</ul>` : "<p>No donations</p>";
+      } catch (e) {
+        console.error("Show donations error:", e);
+        showPopup("Error loading donations!");
+      }
+    }
+
+    function donateBlood() {
+      try {
+        let donorData = donors.find(d => d.username === currentUser.username) || {};
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Donate Blood";
+        const southernStates = ["Andhra Pradesh", "Karnataka", "Kerala", "Tamil Nadu", "Telangana"];
+        document.getElementById("contentBody").innerHTML = `
+          <label>Name:</label><input type="text" id="donName" value="${donorData.name || ''}">
+          <label>Blood Group:</label><input type="text" id="donBloodGroup" value="${donorData.bloodGroup || ''}">
+          <label>Contact:</label><input type="text" id="donContact" value="${donorData.contact || ''}">
+          <label>State:</label><select id="donState" onchange="updateDonorDistrictOptions('donState', 'donDistrict')">${southernStates.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
+          <label>District:</label><select id="donDistrict" onchange="updateHospitalOptions('donDistrict', 'donHospital')"></select>
+          <label>Hospital:</label><select id="donHospital"></select>
+          <label>Date:</label><input type="date" id="donDate">
+          <label>Time:</label><select id="donTime"><option>09:00 AM</option><option>11:00 AM</option><option>02:00 PM</option><option>04:00 PM</option></select>
+          <label>Health Issues:</label><textarea id="healthIssues"></textarea>
+          <button class="login-btn" onclick="submitDonation()">Submit</button>
+        `;
+        updateDonorDistrictOptions('donState', 'donDistrict');
+        updateHospitalOptions('donDistrict', 'donHospital');
+      } catch (e) {
+        console.error("Donate blood error:", e);
+        showPopup("Error loading donation form!");
+      }
+    }
+
+    function updateDonorDistrictOptions(stateId, districtId) {
+      try {
+        let state = document.getElementById(stateId)?.value || "";
+        let districtSelect = document.getElementById(districtId);
+        if (districtSelect) {
+          districtSelect.innerHTML = districtsByState[state] ? districtsByState[state].map(d => `<option value="${d}">${d}</option>`).join('') : '<option value="">Select District</option>';
+        }
+      } catch (e) {
+        console.error("Update districts error:", e);
+      }
+    }
+
+    function updateHospitalOptions(districtId, hospitalId) {
+      try {
+        let district = document.getElementById(districtId).value;
+        let hospitalSelect = document.getElementById(hospitalId);
+        hospitalSelect.innerHTML = hospitalsByDistrict[district] ? hospitalsByDistrict[district].map(h => `<option value="${h}">${h}</option>`).join('') : '<option value="">Select Hospital</option>';
+      } catch (e) {
+        console.error("Update hospitals error:", e);
+      }
+    }
+
+    function submitDonation() {
+      try {
+        let name = document.getElementById("donName").value.trim();
+        let bloodGroup = document.getElementById("donBloodGroup").value.trim();
+        let contact = document.getElementById("donContact").value.trim();
+        let state = document.getElementById("donState").value;
+        let district = document.getElementById("donDistrict").value;
+        let hospitalName = document.getElementById("donHospital").value;
+        let date = document.getElementById("donDate").value;
+        let time = document.getElementById("donTime").value;
+        let healthIssues = document.getElementById("healthIssues").value.trim();
+        if (!name || !bloodGroup || !contact || !state || !district || !hospitalName || !date) {
+          showPopup("Fill required fields!");
+          return;
+        }
+        let donation = { donor: currentUser.username, name, bloodGroup, contact, state, district, hospital: hospitalName, date, time, healthIssues, status: "Pending", testId: lab.tests.length + 1 };
+        let donorData = donors.find(d => d.username === currentUser.username) || { username: currentUser.username };
+        donorData.name = name;
+        donorData.bloodGroup = bloodGroup;
+        donorData.contact = contact;
+        donorData.donations = donorData.donations || [];
+        donorData.healthIssues = donorData.healthIssues || [];
+        donorData.donations.push(`${date}: 1 unit at ${hospitalName}`);
+        donorData.healthIssues.push(healthIssues);
+        if (!donors.find(d => d.username === currentUser.username)) donors.push(donorData);
+        donationRequests.push(donation);
+        lab.tests.push({ 
+          id: donation.testId, 
+          group: bloodGroup, 
+          hiv: "Pending", 
+          hepatitis: "Pending", 
+          malaria: "Pending", 
+          syphilis: "Pending", 
+          status: "Pending",
+          result: "Pending", 
+          donor: { 
+            name, 
+            bloodGroup, 
+            contact, 
+            address: district,
+            age: donorData.age || "N/A",
+            gender: donorData.gender || "N/A"
+          } 
+        });
+        showPopup("Donation submitted!");
+        backToDashboard();
+      } catch (e) {
+        console.error("Submit donation error:", e);
+        showPopup("Error submitting donation!");
+      }
+    }
+
+    // Hospital Features
+    function manageBlood() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Edit Blood Stock";
+        let stockFields = "";
+        for (let bg in hospital.stock) stockFields += `<label>${bg}:</label><input type="number" id="hstk_${bg}" value="${hospital.stock[bg]}">`;
+        document.getElementById("contentBody").innerHTML = `${stockFields}<button class="login-btn" onclick="saveStock()">Save</button>`;
+      } catch (e) {
+        console.error("Manage blood error:", e);
+        showPopup("Error loading stock!");
+      }
+    }
+
+    function saveStock() {
+      try {
+        for (let bg in hospital.stock) {
+          hospital.stock[bg] = parseInt(document.getElementById(`hstk_${bg}`).value) || 0;
+        }
+        showPopup("Stock updated!");
+        backToDashboard();
+      } catch (e) {
+        console.error("Save stock error:", e);
+        showPopup("Error saving stock!");
+      }
+    }
+
+    function searchBlood() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Search Blood";
+        document.getElementById("contentBody").innerHTML = `
+          <label>Blood Group:</label><input type="text" id="searchBG">
+          <button class="login-btn" onclick="doSearchBlood()">Search</button>
+          <div id="searchResult"></div>`;
+      } catch (e) {
+        console.error("Search blood error:", e);
+        showPopup("Error loading search!");
+      }
+    }
+
+    function doSearchBlood() {
+      try {
+        let bg = document.getElementById("searchBG").value.trim();
+        let result = hospital.stock[bg] ? `${bg}: ${hospital.stock[bg]} units` : "Not available";
+        document.getElementById("searchResult").innerHTML = `<p>${result}</p>`;
+      } catch (e) {
+        console.error("Do search blood error:", e);
+        showPopup("Error searching blood!");
+      }
+    }
+
+    function requestBlood() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Request Blood";
+        document.getElementById("contentBody").innerHTML = `
+          <label>Blood Group:</label><input type="text" id="reqBG">
+          <label>Units:</label><input type="number" id="reqUnits">
+          <button class="login-btn" onclick="submitRequestBlood()">Submit</button>`;
+      } catch (e) {
+        console.error("Request blood error:", e);
+        showPopup("Error loading request form!");
+      }
+    }
+
+    function submitRequestBlood() {
+      try {
+        let bg = document.getElementById("reqBG").value.trim();
+        let units = document.getElementById("reqUnits").value.trim();
+        if (!bg || !units) {
+          showPopup("Fill required fields!");
+          return;
+        }
+        let request = { 
+          hospital: hospital.name, 
+          group: bg, 
+          units, 
+          status: "Pending", 
+          requester: "hospital", 
+          username: hospital.username,
+          id: allRequests.length + 1
+        };
+        hospital.requests.push(request);
+        allRequests.push(request);
+        bloodbank.requests.push(request);
+        showPopup("Blood request submitted!");
+        backToDashboard();
+      } catch (e) {
+        console.error("Submit blood request error:", e);
+        showPopup("Error submitting request!");
+      }
+    }
+
+    function viewHospitalRequests() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "View Hospital Requests";
+        let requestsHtml = hospital.requests.length ? `<table><tr><th>ID</th><th>Blood Group</th><th>Units</th><th>Status</th></tr>${hospital.requests.map(r => `<tr><td>${r.id}</td><td>${r.group}</td><td>${r.units}</td><td>${r.status}</td></tr>`).join('')}</table>` : "<p>No requests</p>";
+        document.getElementById("contentBody").innerHTML = requestsHtml;
+      } catch (e) {
+        console.error("View hospital requests error:", e);
+        showPopup("Error loading requests!");
+      }
+    }
+
+    function emergencyBloodSearch() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Emergency Blood Search";
+        document.getElementById("contentBody").innerHTML = `
+          <label>Blood Group:</label><input type="text" id="emgBG">
+          <button class="login-btn" onclick="doEmergencySearch()">Search</button>
+          <div id="emgResult"></div>`;
+      } catch (e) {
+        console.error("Emergency search error:", e);
+        showPopup("Error loading emergency search!");
+      }
+    }
+
+    function doEmergencySearch() {
+      try {
+        let bg = document.getElementById("emgBG").value.trim();
+        let nearbyBloodBanks = bloodbanks.filter(bb => bb.state === hospital.state && bb.district === hospital.district && bb.stock[bg] > 0);
+        let resultHtml = nearbyBloodBanks.length ? `<table><tr><th>Name</th><th>Place</th><th>Contact</th><th>Stock</th></tr>${nearbyBloodBanks.map(bb => `<tr><td>${bb.name}</td><td>${bb.location}</td><td>${bb.contact}</td><td>${bb.stock[bg]} units</td></tr>`).join('')}</table>` : "<p>No emergency stock available</p>";
+        document.getElementById("emgResult").innerHTML = resultHtml;
+      } catch (e) {
+        console.error("Do emergency search error:", e);
+        showPopup("Error searching emergency blood!");
+      }
+    }
+
+    // Doctor Features
+    function doctorRequestBlood() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Request Blood";
+        document.getElementById("contentBody").innerHTML = `
+          <h3>Doctor Details</h3>
+          <div class="donor-info">
+            <strong>Name:</strong> ${doctor.name}
+            <strong>Specialization:</strong> ${doctor.specialization}
+            <strong>Workplace:</strong> ${doctor.workplace}
+            <strong>Gender:</strong> ${doctor.gender}
+            <strong>Contact:</strong> ${doctor.contact}
+            <strong>Address:</strong> ${doctor.address}
+          </div>
+          <button class="action-btn" onclick="editDoctorProfile()">Edit Profile</button>
+          <h3>Request Blood</h3>
+          <label>Blood Group:</label><input type="text" id="docReqBG">
+          <label>Units:</label><input type="number" id="docReqUnits">
+          <button class="login-btn" onclick="submitDoctorRequest()">Submit</button>`;
+      } catch (e) {
+        console.error("Doctor request blood error:", e);
+        showPopup("Error loading request form!");
+      }
+    }
+
+    function editDoctorProfile() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Edit Doctor Profile";
+        document.getElementById("contentBody").innerHTML = `
+          <label>Name:</label><input type="text" id="docName" value="${doctor.name || ''}">
+          <label>Specialization:</label><input type="text" id="docSpecialization" value="${doctor.specialization || ''}">
+          <label>Workplace:</label><input type="text" id="docWorkplace" value="${doctor.workplace || ''}">
+          <label>Gender:</label><select id="docGender"><option value="Male" ${doctor.gender === "Male" ? "selected" : ""}>Male</option><option value="Female" ${doctor.gender === "Female" ? "selected" : ""}>Female</option><option value="Other" ${doctor.gender === "Other" ? "selected" : ""}>Other</option></select>
+          <label>Contact:</label><input type="text" id="docContact" value="${doctor.contact || ''}">
+          <label>Address:</label><input type="text" id="docAddress" value="${doctor.address || ''}">
+          <button class="login-btn" onclick="saveDoctorProfile()">Save</button>`;
+      } catch (e) {
+        console.error("Edit doctor profile error:", e);
+        showPopup("Error loading profile!");
+      }
+    }
+
+    function saveDoctorProfile() {
+      try {
+        doctor.name = document.getElementById("docName").value.trim();
+        doctor.specialization = document.getElementById("docSpecialization").value.trim();
+        doctor.workplace = document.getElementById("docWorkplace").value.trim();
+        doctor.gender = document.getElementById("docGender").value;
+        doctor.contact = document.getElementById("docContact").value.trim();
+        doctor.address = document.getElementById("docAddress").value.trim();
+        if (!doctor.name || !doctor.specialization || !doctor.workplace || !doctor.contact || !doctor.address) {
+          showPopup("Fill required fields!");
+          return;
+        }
+        let user = users.find(u => u.username === currentUser.username && u.role === "doctor");
+        if (user) {
+          user.name = doctor.name;
+          user.detail = doctor.specialization;
+        }
+        let regUser = registeredUsers.find(u => u.username === currentUser.username && u.role === "doctor");
+        if (regUser) Object.assign(regUser, { name: doctor.name, specialization: doctor.specialization, workplace: doctor.workplace, gender: doctor.gender, contact: doctor.contact, address: doctor.address });
+        showPopup("Profile updated!");
+        backToDashboard();
+      } catch (e) {
+        console.error("Save doctor profile error:", e);
+        showPopup("Error saving profile!");
+      }
+    }
+
+    function submitDoctorRequest() {
+      try {
+        let bg = document.getElementById("docReqBG").value.trim();
+        let units = document.getElementById("docReqUnits").value.trim();
+        if (!bg || !units) {
+          showPopup("Fill required fields!");
+          return;
+        }
+        let request = { 
+          doctor: doctor.name, 
+          group: bg, 
+          units, 
+          status: "Pending", 
+          requester: "doctor", 
+          username: doctor.username,
+          id: allRequests.length + 1
+        };
+        doctor.requests.push(request);
+        allRequests.push(request);
+        bloodbank.requests.push(request);
+        showPopup("Blood request submitted!");
+        backToDashboard();
+      } catch (e) {
+        console.error("Submit doctor request error:", e);
+        showPopup("Error submitting request!");
+      }
+    }
+
+    function viewDoctorRequests() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "View Doctor Requests";
+        let requestsHtml = doctor.requests.length ? `<table><tr><th>ID</th><th>Blood Group</th><th>Units</th><th>Status</th></tr>${doctor.requests.map(r => `<tr><td>${r.id}</td><td>${r.group}</td><td>${r.units}</td><td>${r.status}</td></tr>`).join('')}</table>` : "<p>No requests</p>";
+        document.getElementById("contentBody").innerHTML = requestsHtml;
+      } catch (e) {
+        console.error("View doctor requests error:", e);
+        showPopup("Error loading requests!");
+      }
+    }
+
+    function emergencyAlert() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Emergency Alert";
+        document.getElementById("contentBody").innerHTML = `
+          <label>Blood Group:</label><input type="text" id="alertBG">
+          <label>Units:</label><input type="number" id="alertUnits">
+          <button class="login-btn" onclick="submitEmergencyAlert()">Submit</button>`;
+      } catch (e) {
+        console.error("Emergency alert error:", e);
+        showPopup("Error loading alert form!");
+      }
+    }
+
+    function submitEmergencyAlert() {
+      try {
+        let bg = document.getElementById("alertBG").value.trim();
+        let units = document.getElementById("alertUnits").value.trim();
+        if (!bg || !units) {
+          showPopup("Fill required fields!");
+          return;
+        }
+        let alert = { doctor: doctor.name, group: bg, units, status: "Active", username: doctor.username };
+        doctor.alerts = doctor.alerts || [];
+        doctor.alerts.push(alert);
+        bloodbank.alerts = bloodbank.alerts || [];
+        bloodbank.alerts.push(alert);
+        showPopup("Emergency alert raised!");
+        backToDashboard();
+      } catch (e) {
+        console.error("Submit emergency alert error:", e);
+        showPopup("Error submitting alert!");
+      }
+    }
+
+    // Lab Features
+    function editLabProfile() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Edit Lab Profile";
+        document.getElementById("contentBody").innerHTML = `
+          <label>Name:</label><input type="text" id="lName" value="${lab.name || ''}">
+          <label>Gender:</label><select id="lGender"><option value="Male" ${lab.gender === "Male" ? "selected" : ""}>Male</option><option value="Female" ${lab.gender === "Female" ? "selected" : ""}>Female</option><option value="Other" ${lab.gender === "Other" ? "selected" : ""}>Other</option></select>
+          <label>Contact:</label><input type="text" id="lContact" value="${lab.contact || ''}">
+          <label>Address:</label><input type="text" id="lAddress" value="${lab.address || ''}">
+          <button class="login-btn" onclick="saveLab()">Save</button>`;
+      } catch (e) {
+        console.error("Edit lab profile error:", e);
+        showPopup("Error loading profile!");
+      }
+    }
+
+    function saveLab() {
+      try {
+        lab.name = document.getElementById("lName").value.trim();
+        lab.gender = document.getElementById("lGender").value;
+        lab.contact = document.getElementById("lContact").value.trim();
+        lab.address = document.getElementById("lAddress").value.trim();
+        if (!lab.name || !lab.contact) {
+          showPopup("Fill required fields!");
+          return;
+        }
+        let user = users.find(u => u.username === currentUser.username && u.role === "lab");
+        if (user) user.name = lab.name;
+        let regUser = registeredUsers.find(u => u.username === currentUser.username && u.role === "lab");
+        if (regUser) Object.assign(regUser, { name: lab.name, gender: lab.gender, contact: lab.contact, address: lab.address });
+        showPopup("Profile updated!");
+        backToDashboard();
+      } catch (e) {
+        console.error("Save lab error:", e);
+        showPopup("Error saving profile!");
+      }
+    }
+
+    function editTests() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Edit Tests";
+        let testsHtml = lab.tests.length ? `<table><tr><th>ID</th><th>Blood Group</th><th>Donor Details</th><th>HIV</th><th>Hepatitis</th><th>Malaria</th><th>Syphilis</th><th>Status</th><th>Result</th><th>Action</th></tr>${lab.tests.map(t => `
+          <tr>
+            <td>${t.id}</td>
+            <td>${t.group}</td>
+            <td style="text-align:left; padding:10px;"><strong>Name:</strong> ${t.donor.name}<br><strong>Blood Group:</strong> ${t.donor.bloodGroup}<br><strong>Age:</strong> ${t.donor.age}<br><strong>Gender:</strong> ${t.donor.gender}<br><strong>Contact:</strong> ${t.donor.contact}<br><strong>Address:</strong> ${t.donor.address}</td>            <td><input type="text" id="hiv_${t.id}" value="${t.hiv}"></td>
+            <td><input type="text" id="hep_${t.id}" value="${t.hepatitis}"></td>
+            <td><input type="text" id="mal_${t.id}" value="${t.malaria}"></td>
+            <td><input type="text" id="syp_${t.id}" value="${t.syphilis}"></td>
+            <td><select id="status_${t.id}"><option ${t.status === "Pending" ? "selected" : ""}>Pending</option><option ${t.status === "In Progress" ? "selected" : ""}>In Progress</option><option ${t.status === "Completed" ? "selected" : ""}>Completed</option></select></td>
+            <td><select id="result_${t.id}"><option ${t.result === "Pending" ? "selected" : ""}>Pending</option><option ${t.result === "Accepted" ? "selected" : ""}>Accepted</option><option ${t.result === "Rejected" ? "selected" : ""}>Rejected</option></select></td>
+            <td><button class="action-btn accept-btn" onclick="updateTest(${t.id}, true)">Accept</button><button class="action-btn reject-btn" onclick="updateTest(${t.id}, false)">Reject</button></td>
+          </tr>`).join('')}</table>` : "<p>No tests</p>";
+        document.getElementById("contentBody").innerHTML = testsHtml;
+      } catch (e) {
+        console.error("Edit tests error:", e);
+        showPopup("Error loading tests!");
+      }
+    }
+
+    function updateTest(id, isAccept) {
+      try {
+        let test = lab.tests.find(t => t.id === id);
+        if (test) {
+          test.hiv = document.getElementById(`hiv_${id}`).value.trim();
+          test.hepatitis = document.getElementById(`hep_${id}`).value.trim();
+          test.malaria = document.getElementById(`mal_${id}`).value.trim();
+          test.syphilis = document.getElementById(`syp_${id}`).value.trim();
+          test.status = document.getElementById(`status_${id}`).value;
+          test.result = isAccept ? "Accepted" : "Rejected";
+          showPopup(`Test ${id} ${isAccept ? "accepted" : "rejected"}!`);
+        }
+      } catch (e) {
+        console.error("Update test error:", e);
+        showPopup("Error updating test!");
+      }
+    }
+
+// Admin Features
+function manageUsers() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "Manage Users";
+    let userHtml = users.length ? `<table><tr><th>Role</th><th>Name</th><th>Detail</th><th>Username</th></tr>${users.map(u => `<tr><td>${u.role}</td><td>${u.name}</td><td>${u.detail}</td><td>${u.username}</td></tr>`).join('')}</table>` : "<p>No users</p>";
+    document.getElementById("contentBody").innerHTML = userHtml;
+  } catch (e) {
+    console.error("Manage users error:", e);
+    showPopup("Error loading users!");
+  }
+}
+
+function listBloodBanks() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "List Blood Banks";
+    let bbHtml = bloodbanks.length ? `<table><tr><th>Name</th><th>State</th><th>District</th><th>Location</th><th>Contact</th></tr>${bloodbanks.map(b => `<tr><td>${b.name}</td><td>${b.state}</td><td>${b.district}</td><td>${b.location}</td><td>${b.contact}</td></tr>`).join('')}</table>` : "<p>No blood banks</p>";
+    document.getElementById("contentBody").innerHTML = bbHtml;
+  } catch (e) {
+    console.error("List blood banks error:", e);
+    showPopup("Error loading blood banks!");
+  }
+}
+
+function manageBloodBanks() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "Manage Blood Banks";
+    let bbHtml = bloodbanks.length ? `<table><tr><th>Name</th><th>State</th><th>District</th><th>Location</th><th>Contact</th><th>Action</th></tr>${bloodbanks.map(b => `
+      <tr>
+        <td><input type="text" id="bbname_${b.name}" value="${b.name}"></td>
+        <td><input type="text" id="bbstate_${b.name}" value="${b.state}"></td>
+        <td><input type="text" id="bbdistrict_${b.name}" value="${b.district}"></td>
+        <td><input type="text" id="bblocation_${b.name}" value="${b.location}"></td>
+        <td><input type="text" id="bbcontact_${b.name}" value="${b.contact}"></td>
+        <td><button class="action-btn accept-btn" onclick="saveBloodBank('${b.name}')">Save</button></td>
+      </tr>`).join('')}</table>` : "<p>No blood banks</p>";
+    document.getElementById("contentBody").innerHTML = bbHtml;
+  } catch (e) {
+    console.error("Manage blood banks error:", e);
+    showPopup("Error loading blood banks!");
+  }
+}
+
+function saveBloodBank(name) {
+  try {
+    let bb = bloodbanks.find(b => b.name === name);
+    if (!bb) {
+      showPopup("Blood bank not found!");
+      return;
+    }
+    bb.name = document.getElementById(`bbname_${name}`).value.trim();
+    bb.state = document.getElementById(`bbstate_${name}`).value.trim();
+    bb.district = document.getElementById(`bbdistrict_${name}`).value.trim();
+    bb.location = document.getElementById(`bblocation_${name}`).value.trim();
+    bb.contact = document.getElementById(`bbcontact_${name}`).value.trim();
+    if (!bb.name || !bb.state || !bb.district || !bb.contact) {
+      showPopup("Fill required fields!");
+      return;
+    }
+    let bbUser = registeredUsers.find(u => u.role === "bloodbank" && u.name === name);
+    if (bbUser) {
+      bbUser.name = bb.name;
+      bbUser.state = bb.state;
+      bbUser.district = bb.district;
+      bbUser.location = bb.location;
+      bbUser.contact = bb.contact;
+    }
+    let user = users.find(u => u.role === "bloodbank" && u.name === name);
+    if (user) {
+      user.name = bb.name;
+      user.detail = bb.location;
+    }
+    showPopup("Blood bank updated!");
+    manageBloodBanks();
+  } catch (e) {
+    console.error("Save blood bank error:", e);
+    showPopup("Error saving blood bank!");
+  }
+}
+
+function viewAllData() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "View All Data";
+    let donorHtml = donors.length ? `<h3>Donors</h3><table><tr><th>Name</th><th>Blood Group</th><th>Contact</th></tr>${donors.map(d => `<tr><td>${d.name}</td><td>${d.bloodGroup}</td><td>${d.contact}</td></tr>`).join('')}</table>` : "<h3>Donors</h3><p>No donors</p>";
+    let hospitalHtml = `<h3>Hospital Stock</h3><table><tr><th>Blood Group</th><th>Units</th></tr>${Object.keys(hospital.stock).map(bg => `<tr><td>${bg}</td><td>${hospital.stock[bg]}</td></tr>`).join('')}</table>`;
+    let bbHtml = bloodbanks.length ? `<h3>Blood Banks</h3><table><tr><th>Name</th><th>Stock</th></tr>${bloodbanks.map(b => `<tr><td>${b.name}</td><td>${Object.keys(b.stock).map(bg => `${bg}: ${b.stock[bg]}`).join(', ')}</td></tr>`).join('')}</table>` : "<h3>Blood Banks</h3><p>No blood banks</p>";
+    document.getElementById("contentBody").innerHTML = donorHtml + hospitalHtml + bbHtml;
+  } catch (e) {
+    console.error("View all data error:", e);
+    showPopup("Error loading data!");
+  }
+}
+
+function manageDonors() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "Manage Donors";
+    let donorHtml = donors.length ? `<table><tr><th>Name</th><th>Blood Group</th><th>Contact</th><th>Address</th><th>Action</th></tr>${donors.map(d => `
+      <tr>
+        <td><input type="text" id="dname_${d.username}" value="${d.name}"></td>
+        <td><input type="text" id="dbg_${d.username}" value="${d.bloodGroup}"></td>
+        <td><input type="text" id="dcontact_${d.username}" value="${d.contact}"></td>
+        <td><input type="text" id="daddress_${d.username}" value="${d.address}"></td>
+        <td><button class="action-btn accept-btn" onclick="saveDonorAdmin('${d.username}')">Save</button></td>
+      </tr>`).join('')}</table>` : "<p>No donors</p>";
+    document.getElementById("contentBody").innerHTML = donorHtml;
+  } catch (e) {
+    console.error("Manage donors error:", e);
+    showPopup("Error loading donors!");
+  }
+}
+
+function saveDonorAdmin(username) {
+  try {
+    let donor = donors.find(d => d.username === username);
+    if (!donor) {
+      showPopup("Donor not found!");
+      return;
+    }
+    donor.name = document.getElementById(`dname_${username}`).value.trim();
+    donor.bloodGroup = document.getElementById(`dbg_${username}`).value.trim();
+    donor.contact = document.getElementById(`dcontact_${username}`).value.trim();
+    donor.address = document.getElementById(`daddress_${username}`).value.trim();
+    if (!donor.name || !donor.bloodGroup || !donor.contact) {
+      showPopup("Fill required fields!");
+      return;
+    }
+    let user = users.find(u => u.username === username && u.role === "donor");
+    if (user) {
+      user.name = donor.name;
+      user.detail = donor.bloodGroup + " Blood Donor";
+    }
+    let regUser = registeredUsers.find(u => u.username === username && u.role === "donor");
+    if (regUser) Object.assign(regUser, { name: donor.name, bloodGroup: donor.bloodGroup, contact: donor.contact, address: donor.address });
+    showPopup("Donor updated!");
+    manageDonors();
+  } catch (e) {
+    console.error("Save donor admin error:", e);
+    showPopup("Error saving donor!");
+  }
+}
+
+function viewAllRequests() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "View All Requests";
+    let requestsHtml = allRequests.length ? `<table><tr><th>ID</th><th>Requester</th><th>Blood Group</th><th>Units</th><th>Status</th></tr>${allRequests.map(r => `<tr><td>${r.id}</td><td>${r.hospital || r.doctor || 'Unknown'}</td><td>${r.group}</td><td>${r.units}</td><td>${r.status}</td></tr>`).join('')}</table>` : "<p>No requests</p>";
+    document.getElementById("contentBody").innerHTML = requestsHtml;
+  } catch (e) {
+    console.error("View all requests error:", e);
+    showPopup("Error loading requests!");
+  }
+}
+
+// Blood Bank Features
+function editBloodBankProfile() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "Edit Blood Bank Profile";
+    document.getElementById("contentBody").innerHTML = `
+      <label>Name:</label><input type="text" id="bbName" value="${bloodbank.name || ''}">
+      <label>State:</label><select id="bbState" onchange="updateDistrictOptions('bbState', 'bbDistrict')">${states.map(s => `<option value="${s}" ${bloodbank.state === s ? "selected" : ""}>${s}</option>`).join('')}</select>
+      <label>District:</label><select id="bbDistrict"></select>
+      <label>Location:</label><input type="text" id="bbLocation" value="${bloodbank.location || ''}">
+      <label>Contact:</label><input type="text" id="bbContact" value="${bloodbank.contact || ''}">
+      <label>Address:</label><input type="text" id="bbAddress" value="${bloodbank.address || ''}">
+      <button class="login-btn" onclick="saveBloodBankProfile()">Save</button>`;
+    updateDistrictOptions('bbState', 'bbDistrict');
+  } catch (e) {
+    console.error("Edit blood bank profile error:", e);
+    showPopup("Error loading profile!");
+  }
+}
+
+function saveBloodBankProfile() {
+  try {
+    bloodbank.name = document.getElementById("bbName").value.trim();
+    bloodbank.state = document.getElementById("bbState").value;
+    bloodbank.district = document.getElementById("bbDistrict").value;
+    bloodbank.location = document.getElementById("bbLocation").value.trim();
+    bloodbank.contact = document.getElementById("bbContact").value.trim();
+    bloodbank.address = document.getElementById("bbAddress").value.trim();
+    if (!bloodbank.name || !bloodbank.state || !bloodbank.district || !bloodbank.contact) {
+      showPopup("Fill required fields!");
+      return;
+    }
+    let user = users.find(u => u.username === currentUser.username && u.role === "bloodbank");
+    if (user) {
+      user.name = bloodbank.name;
+      user.detail = bloodbank.location;
+    }
+    let regUser = registeredUsers.find(u => u.username === currentUser.username && u.role === "bloodbank");
+    if (regUser) Object.assign(regUser, { name: bloodbank.name, state: bloodbank.state, district: bloodbank.district, location: bloodbank.location, contact: bloodbank.contact, address: bloodbank.address });
+    let bb = bloodbanks.find(b => b.name === bloodbank.name);
+    if (bb) Object.assign(bb, { name: bloodbank.name, state: bloodbank.state, district: bloodbank.district, location: bloodbank.location, contact: bloodbank.contact });
+    showPopup("Profile updated!");
+    backToDashboard();
+  } catch (e) {
+    console.error("Save blood bank profile error:", e);
+    showPopup("Error saving profile!");
+  }
+}
+
+function manageBloodBankStock() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "Manage Blood Bank Stock";
+    let stockFields = "";
+    for (let bg in bloodbank.stock) stockFields += `<label>${bg}:</label><input type="number" id="bbstk_${bg}" value="${bloodbank.stock[bg]}">`;
+    document.getElementById("contentBody").innerHTML = `${stockFields}<button class="login-btn" onclick="saveBloodBankStock()">Save</button>`;
+  } catch (e) {
+    console.error("Manage blood bank stock error:", e);
+    showPopup("Error loading stock!");
+  }
+}
+
+function saveBloodBankStock() {
+  try {
+    for (let bg in bloodbank.stock) {
+      bloodbank.stock[bg] = parseInt(document.getElementById(`bbstk_${bg}`).value) || 0;
+    }
+    let bb = bloodbanks.find(b => b.name === bloodbank.name);
+    if (bb) bb.stock = { ...bloodbank.stock };
+    showPopup("Stock updated!");
+    backToDashboard();
+  } catch (e) {
+    console.error("Save blood bank stock error:", e);
+    showPopup("Error saving stock!");
+  }
+}
+
+function viewRequestsAndAlerts() {
+  try {
+    document.getElementById("dashboardBox").classList.add("hidden");
+    document.getElementById("contentBox").classList.remove("hidden");
+    document.getElementById("contentTitle").innerText = "View Requests & Alerts";
+    let requestsHtml = bloodbank.requests.length ? `<h3>Blood Requests</h3><table><tr><th>ID</th><th>Requester</th><th>Blood Group</th><th>Units</th><th>Status</th><th>Action</th></tr>${bloodbank.requests.map(r => `
+      <tr>
+        <td>${r.id}</td>
+        <td>${r.hospital || r.doctor || 'Unknown'}</td>
+        <td>${r.group}</td>
+        <td>${r.units}</td>
+        <td>${r.status}</td>
+        <td><button class="action-btn accept-btn" onclick="approveRequest(${r.id}, true)">Approve</button><button class="action-btn reject-btn" onclick="approveRequest(${r.id}, false)">Reject</button></td>
+      </tr>`).join('')}</table>` : "<h3>Blood Requests</h3><p>No requests</p>";
+    let alertsHtml = bloodbank.alerts.length ? `<h3>Emergency Alerts</h3><table><tr><th>Doctor</th><th>Blood Group</th><th>Units</th><th>Status</th><th>Action</th></tr>${bloodbank.alerts.map(a => `
+      <tr>
+        <td>${a.doctor}</td>
+        <td>${a.group}</td>
+        <td>${a.units}</td>
+        <td>${a.status}</td>
+        <td><button class="action-btn accept-btn" onclick="approveAlert('${a.doctor}', '${a.group}', ${a.units}, true)">Approve</button><button class="action-btn reject-btn" onclick="approveAlert('${a.doctor}', '${a.group}', ${a.units}, false)">Reject</button></td>
+      </tr>`).join('')}</table>` : "<h3>Emergency Alerts</h3><p>No alerts</p>";
+    document.getElementById("contentBody").innerHTML = requestsHtml + alertsHtml;
+  } catch (e) {
+    console.error("View requests and alerts error:", e);
+    showPopup("Error loading requests and alerts!");
+  }
+}
+
+function approveRequest(id, isApprove) {
+  try {
+    let request = bloodbank.requests.find(r => r.id === id);
+    if (request) {
+      request.status = isApprove ? "Approved" : "Rejected";
+      if (isApprove && bloodbank.stock && bloodbank.stock[request.group] >= request.units) {
+        bloodbank.stock[request.group] -= request.units;
+        if (request.requester === "hospital") {
+          hospital.stock[request.group] = (hospital.stock[request.group] || 0) + parseInt(request.units);
+          let hospitalRequest = hospital.requests.find(r => r.id === id);
+          if (hospitalRequest) hospitalRequest.status = isApprove ? "Approved" : "Rejected";
+        } else if (request.requester === "doctor") {
+          let doctorRequest = doctor.requests.find(r => r.id === id);
+          if (doctorRequest) doctorRequest.status = isApprove ? "Approved" : "Rejected";
+        }
+        let bb = bloodbanks.find(b => b.name === bloodbank.name);
+        if (bb) bb.stock = { ...bloodbank.stock };
+      }
+      showPopup(`Request ${id} ${isApprove ? "approved" : "rejected"}!`);
+      viewRequestsAndAlerts();
+    }
+  } catch (e) {
+    console.error("Approve request error:", e);
+    showPopup("Error approving request!");
+  }
+}
+
+function approveAlert(doctorName, group, units, isApprove) {
+  try {
+    let alert = bloodbank.alerts.find(a => a.doctor === doctorName && a.group === group && a.units == units);
+    if (alert) {
+      alert.status = isApprove ? "Approved" : "Rejected";
+      if (isApprove && bloodbank.stock && bloodbank.stock[group] >= units) {
+        bloodbank.stock[group] -= units;
+        let doctorAlert = doctor.alerts.find(a => a.doctor === doctorName && a.group === group && a.units == units);
+        if (doctorAlert) doctorAlert.status = isApprove ? "Approved" : "Rejected";
+        let bb = bloodbanks.find(b => b.name === bloodbank.name);
+        if (bb) bb.stock = { ...bloodbank.stock };
+      }
+      showPopup(`Alert from ${doctorName} ${isApprove ? "approved" : "rejected"}!`);
+      viewRequestsAndAlerts();
+    }
+  } catch (e) {
+    console.error("Approve alert error:", e);
+    showPopup("Error approving alert!");
+  }
+}
+
+function listBloodBanks() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "List Blood Banks";
+        let banksHtml = bloodbanks.length ? `<table><tr><th>Name</th><th>State</th><th>District</th><th>Location</th><th>Contact</th></tr>${bloodbanks.map(b => `<tr><td>${b.name}</td><td>${b.state}</td><td>${b.district}</td><td>${b.location}</td><td>${b.contact}</td></tr>`).join('')}</table>` : "<p>No blood banks</p>";
+        document.getElementById("contentBody").innerHTML = banksHtml;
+      } catch (e) {
+        console.error("List blood banks error:", e);
+        showPopup("Error loading blood banks!");
+      }
+    }
+
+    function searchBloodBanks() {
+      try {
+        document.getElementById("dashboardBox").classList.add("hidden");
+        document.getElementById("contentBox").classList.remove("hidden");
+        document.getElementById("contentTitle").innerText = "Search Blood Banks";
+        document.getElementById("contentBody").innerHTML = `
+          <label>State:</label><select id="searchState" onchange="updateSearchDistrictOptions('searchState', 'searchDistrict')">${states.map(s => `<option value="${s}">${s}</option>`).join('')}</select>
+          <label>District:</label><select id="searchDistrict"></select>
+          <button class="login-btn" onclick="doSearchBloodBanks()">Search</button>
+          <div id="searchBanksResult"></div>`;
+        updateSearchDistrictOptions('searchState', 'searchDistrict');
+      } catch (e) {
+        console.error("Search blood banks error:", e);
+        showPopup("Error loading search form!");
+      }
+    }
+
+    function updateSearchDistrictOptions(stateId, districtId) {
+      try {
+        let state = document.getElementById(stateId)?.value || "";
+        let districtSelect = document.getElementById(districtId);
+        if (districtSelect) {
+          districtSelect.innerHTML = districtsByState[state] ? districtsByState[state].map(d => `<option value="${d}">${d}</option>`).join('') : '<option value="">Select District</option>';
+        }
+      } catch (e) {
+        console.error("Update search districts error:", e);
+      }
+    }
+
+    function doSearchBloodBanks() {
+      try {
+        let state = document.getElementById("searchState").value;
+        let district = document.getElementById("searchDistrict").value;
+        let result = bloodbanks.filter(b => (state === "" || b.state === state) && (district === "" || b.district === district));
+        document.getElementById("searchBanksResult").innerHTML = result.length ? `<table><tr><th>Name</th><th>State</th><th>District</th><th>Location</th><th>Contact</th></tr>${result.map(b => `<tr><td>${b.name}</td><td>${b.state}</td><td>${b.district}</td><td>${b.location}</td><td>${b.contact}</td></tr>`).join('')}</table>` : "<p>No blood banks found</p>";
+      } catch (e) {
+        console.error("Do search blood banks error:", e);
+        showPopup("Error searching blood banks!");
+      }
+    }
+
+function backToDashboard() {
+  try {
+    document.getElementById("dashboardBox").classList.remove("hidden");
+    document.getElementById("contentBox").classList.add("hidden");
+    loadDashboard();
+  } catch (e) {
+    console.error("Back to dashboard error:", e);
+    showPopup("Error returning to dashboard!");
+  }
+}
+</script>
+</body>
+</html>
